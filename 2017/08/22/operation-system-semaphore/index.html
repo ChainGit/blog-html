@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leechain.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="操作系统原理之信号量同步和互斥是比较重要的概念，这里转载一篇文章并做整理。 操作系统原理之进程和线程管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统原理之信号量">
+<meta property="og:url" content="http://www.leechain.top/2017/08/22/operation-system-semaphore/index.html">
+<meta property="og:site_name" content="Qwerty Everyday.">
+<meta property="og:description" content="操作系统原理之信号量同步和互斥是比较重要的概念，这里转载一篇文章并做整理。 操作系统原理之进程和线程管理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.leechain.top/uploads/multithreads-basic-knowledge/4.png">
+<meta property="article:published_time" content="2017-08-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2017-12-06T12:56:59.000Z">
+<meta property="article:author" content="Chain Qian">
+<meta property="article:tag" content="学习">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.leechain.top/uploads/multithreads-basic-knowledge/4.png">
+
+<link rel="canonical" href="http://www.leechain.top/2017/08/22/operation-system-semaphore/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>操作系统原理之信号量 | Qwerty Everyday.</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Qwerty Everyday.</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">/* hello world */</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.leechain.top/2017/08/22/operation-system-semaphore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/custom-avatar.jpg">
+      <meta itemprop="name" content="Chain Qian">
+      <meta itemprop="description" content="// todo sth">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Qwerty Everyday.">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统原理之信号量
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-08-22 00:00:00" itemprop="dateCreated datePublished" datetime="2017-08-22T00:00:00+08:00">2017-08-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="操作系统原理之信号量"><a href="#操作系统原理之信号量" class="headerlink" title="操作系统原理之信号量"></a>操作系统原理之信号量</h1><p>同步和互斥是比较重要的概念，这里转载一篇<a target="_blank" rel="noopener" href="http://c.biancheng.net/cpp/html/2598.html">文章</a>并做整理。</p>
+<p><a href="https://www.leechain.top/blog/2017/08/25-operation-system-multithreads.html">操作系统原理之进程和线程管理</a></p>
+<h2 id="实现临界区互斥的基本方法"><a href="#实现临界区互斥的基本方法" class="headerlink" title="实现临界区互斥的基本方法"></a>实现临界区互斥的基本方法</h2><h3 id="软件实现方法"><a href="#软件实现方法" class="headerlink" title="软件实现方法"></a>软件实现方法</h3><p>在进入区设置和检查一些标志来标明是否有进程在临界区中，如果已有进程在临界区，则在进入区通过循环检查进行等待，进程离开临界区后则在退出区修改标志。</p>
+<h4 id="算法一：单标志法"><a href="#算法一：单标志法" class="headerlink" title="算法一：单标志法"></a>算法一：单标志法</h4><p>该算法设置一个公用整型变量turn，用于指示被允许进入临界区的进程编号。<br>即若turn=0，则允许P0进程进入临界区；相应的，若turn=1，则允许P1进程进入临界区.</p>
+<p>注意：该算法可确保每次只允许一个进程进入临界区，但两个进程必须交替进入临界区。<br>如果某个进程进入了一次后退出，那么另一个进程将无法进入临界区__（违背“空闲让进”）__，这样很容易造成资源利用的不充分。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// P0进程</span></span><br><span class="line"><span class="keyword">while</span>(turn!=<span class="number">0</span>);</span><br><span class="line">critical section;</span><br><span class="line">turn=<span class="number">1</span>;</span><br><span class="line">remainder section;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// P1进程</span></span><br><span class="line"><span class="keyword">while</span>(turn!=<span class="number">1</span>);  <span class="comment">// 进入区</span></span><br><span class="line">critical section;  <span class="comment">// 临界区</span></span><br><span class="line">turn = <span class="number">0</span>;  <span class="comment">// 退出区</span></span><br><span class="line">remainder section;  <span class="comment">// 剩余区</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="算法二：双标志法先检查"><a href="#算法二：双标志法先检查" class="headerlink" title="算法二：双标志法先检查"></a>算法二：双标志法先检查</h4><p>该算法的基本思想是在每一个进程访问临界区资源之前，先查看一下临界资源是否正被访问，若正被访问，该进程需等待；否则，进程才进入自己的临界区。<br>为此，设置了一个数据flag[i]，如第i个元素值为FALSE，表示Pi进程未进入临界区，值为TRUE，表示Pi进程进入临界区。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pi 进程</span></span><br><span class="line"><span class="keyword">while</span>(flag[j]);  <span class="comment">// ①    </span></span><br><span class="line">flag[i]=TRUE;  <span class="comment">// ③  </span></span><br><span class="line">critical section;   </span><br><span class="line">flag[i] = FALSE; </span><br><span class="line">remainder section;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pj 进程</span></span><br><span class="line"><span class="keyword">while</span>(flag[i]);  <span class="comment">// ② 进入区</span></span><br><span class="line">flag[j] =TRUE;  <span class="comment">// ④ 进入区</span></span><br><span class="line">critical section;  <span class="comment">// 临界区</span></span><br><span class="line">flag[j] = FALSE;  <span class="comment">// 退出区</span></span><br><span class="line">remainder section;  <span class="comment">// 剩余区</span></span><br></pre></td></tr></table></figure>
+
+<p>优点：不用交替进入，可连续使用；<br>缺点：Pi和Pj可能同时进入临界区。按序列①②③④ 执行时，会同时进入临界区__（违背“忙则等待”)__。即在检查对方flag之后和切换自己flag之前有一段时间（可能进程被剥夺了执行权），结果都检查通过。</p>
+<p>这里的问题出在检查（while(flag[i])）和修改(flag[j])操作不能一次进行。</p>
+<h4 id="算法三：双标志法后检查"><a href="#算法三：双标志法后检查" class="headerlink" title="算法三：双标志法后检查"></a>算法三：双标志法后检查</h4><p>算法二是先检测对方进程状态标志后，再置自己标志，由于在检测和放置中可插入另一个进程到达时的检测操作，会造成两个进程在分别检测后，同时进入临界区。</p>
+<p>为此，算法三釆用先设置自己标志为TRUE后,再检测对方状态标志，若对方标志为TURE，则进程等待；否则进入临界区。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pi进程</span></span><br><span class="line">flag[i] =TRUE;</span><br><span class="line"><span class="keyword">while</span>(flag[j]);</span><br><span class="line">critical section;</span><br><span class="line">flag[i] =FLASE;</span><br><span class="line">remainder section;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pj进程</span></span><br><span class="line">flag[j] =TRUE;  <span class="comment">// 进入区</span></span><br><span class="line"><span class="keyword">while</span>(flag[i]);  <span class="comment">// 进入区</span></span><br><span class="line">critical section;  <span class="comment">// 临界区</span></span><br><span class="line">flag [j] =FLASE;   <span class="comment">// 退出区</span></span><br><span class="line">remainder section;  <span class="comment">// 剩余区</span></span><br></pre></td></tr></table></figure>
+
+<p>缺点：当两个进程几乎同时都想进入临界区时，它们分别将自己的标志值flag设置为TRUE，并且同时检测对方的状态（执行while语句），发现对方也要进入临界区，于是双方互相谦让，结果谁也进不了临界区，从而__导致“饥饿”现象__。</p>
+<h4 id="算法四：Peterson’s-Algorithm"><a href="#算法四：Peterson’s-Algorithm" class="headerlink" title="算法四：Peterson’s Algorithm"></a>算法四：Peterson’s Algorithm</h4><p>为了防止两个进程为进入临界区而无限期等待，又设置变量turn，指示不允许进入临界区的进程编号，每个进程在先设置自己标志后再设置turn标志，不允许另一个进程进入。</p>
+<p>这时，再同时检测另一个进程状态标志和不允许进入标志，这样可以保证当两个进程同时要求进入临界区，只允许一个进程进入临界区。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pi进程</span></span><br><span class="line">flag[i]=TURE; turn=j;</span><br><span class="line"><span class="keyword">while</span>(flag[j]&amp;&amp;turn==j); </span><br><span class="line">critical section;</span><br><span class="line">flag[i]=FLASE;</span><br><span class="line">remainder section;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Pj进程</span></span><br><span class="line">flag[j] =TRUE;turn=i;  <span class="comment">// 进入区</span></span><br><span class="line"><span class="keyword">while</span>(flag[i]&amp;&amp;turn==i);   <span class="comment">// 进入区</span></span><br><span class="line">critical section;  <span class="comment">// 临界区</span></span><br><span class="line">flag[j]=FLASE;  <span class="comment">// 退出区</span></span><br><span class="line">remainder section;  <span class="comment">// 剩余区</span></span><br></pre></td></tr></table></figure>
+
+<p>本算法的基本思想是算法一和算法三的结合。<strong>利用flag解决临界资源的互斥访问，而利用turn解决“饥饿”现象。</strong></p>
+<h3 id="硬件实现方法"><a href="#硬件实现方法" class="headerlink" title="硬件实现方法"></a>硬件实现方法</h3><p>硬件实现和信号量相关。</p>
+<p>计算机提供了特殊的硬件指令，允许对一个字中的内容进行检测和修正，或者是对两个字的内容进行交换等。<br>通过硬件支持实现临界段问题的低级方法或称为元方法。</p>
+<h4 id="中断屏蔽方法"><a href="#中断屏蔽方法" class="headerlink" title="中断屏蔽方法"></a>中断屏蔽方法</h4><p>当一个进程正在使用处理机执行它的临界区代码时，要防止其他进程再进入其临界区访问的最简单方法是禁止一切中断发生，或称之为__屏蔽中断__、关中断。<br>因为CPU只在发生中断时引起进程切换，这样屏蔽中断就能保证当前运行进程将临界区代码顺利地执行完，从而保证了互斥的正确实现，然后再执行开中断。</p>
+<p>其典型模式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">关中断;</span><br><span class="line">临界区;</span><br><span class="line">开中断;</span><br></pre></td></tr></table></figure>
+
+<p>缺点：这种方法限制了处理机交替执行程序的能力，因此__执行的效率将会明显降低__。对内核来说，当它执行更新变量或列表的几条指令期间关中断是很方便的，但将关中断的权力交给用户则很不明智，若一个进程关中断之后执行出现错误，而不再开中断，则系统可能会因此终止。</p>
+<h4 id="硬件指令方法"><a href="#硬件指令方法" class="headerlink" title="硬件指令方法"></a>硬件指令方法</h4><p>1、TestAndSet指令：这条指令是__原子操作__，即执行该代码时不允许被中断。其功能是读出指定标志后把该标志设置为真。</p>
+<p>指令的功能描述如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">TestAndSet</span><span class="params">(<span class="keyword">boolean</span> *lock)</span></span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> old;</span><br><span class="line">    old = *lock;</span><br><span class="line">    *lock=<span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">return</span> old;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以为每个临界资源设置一个共享布尔变量lock，表示资源的两种状态：true表示正被占用，初值为false。<br>在进程访问临界资源之前，利用TestAndSet检查和修改标志lock；若有进程在临界区，则重复检查，直到进程退出。</p>
+<p>利用该指令实现进程互斥的算法描述如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">while</span> <span class="title">TestAndSet</span><span class="params">(&amp;lock)</span></span>;</span><br><span class="line"><span class="comment">// 进程的临界区代码段;</span></span><br><span class="line">lock=<span class="keyword">false</span>;</span><br><span class="line"><span class="comment">// 进程的其他代码</span></span><br></pre></td></tr></table></figure>
+
+<p>2、Swap指令：该指令的功能是交换两个字节的内容。其功能描述如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Swap(<span class="keyword">boolean</span> *a, <span class="keyword">boolean</span> *b)&#123;  </span><br><span class="line">    <span class="keyword">boolean</span> temp;</span><br><span class="line">    Temp=*a;</span><br><span class="line">    *a = *b;</span><br><span class="line">    *b = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：以上对TestAndSet和Swap指令的描述仅仅是功能实现，并非软件实现定义（软件实现也有类似，比如CAS），事实上它们是由硬件逻辑直接实现的，不会被中断。</p>
+<p>应为每个临界资源设置了一个共享布尔变量lock，初值为false；在每个进程中再设置一个局部布尔变量key，用于与lock交换信息。<br>在进入临界区之前先利用Swap指令交换lock与key的内容，然后检查key的状态；<br>有进程在临界区时，重复交换和检查过程，直到进程退出。</p>
+<p>利用Swap指令实现进程互斥的算法描述如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">key=<span class="keyword">true</span>;</span><br><span class="line"><span class="keyword">while</span>(key!=<span class="keyword">false</span>)</span><br><span class="line">Swap(&amp;lock, &amp;key); </span><br><span class="line"><span class="comment">// 进程的临界区代码段；</span></span><br><span class="line">lock=<span class="keyword">false</span>;</span><br><span class="line"><span class="comment">// 进程的其他代码；</span></span><br></pre></td></tr></table></figure>
+
+<p>硬件方法的优点：适用于任意数目的进程，不管是单处理机还是多处理机；简单、容易验证其正确性。可以支持进程内有多个临界区，只需为每个临界区设立一个布尔变量。<br>硬件方法的缺点：进程等待进入临界区时要耗费处理机时间，不能实现让权等待。从等待进程中随机选择一个进入临界区，有的进程可能一直选不上，从而导致“饥饿”现象。</p>
+<h2 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h2><p>信号量机构是一种功能较强的机制，可用来解决互斥与同步的问题，它只能被两个标准的原语wait(S)和signal(S)来访问，也可以记为“P操作”和“V操作”。</p>
+<p>原语是指完成某种功能且不被分割不被中断执行的操作序列，通常可由硬件来实现完成不被分割执行特性的功能。<br>如前述的“Test-and-Set”和“Swap”指令，就是由硬件实现的原子操作。原语功能的不被中断执行特性在单处理机时可由软件通过屏蔽中断方法实现。</p>
+<p>原语之所以不能被中断执行，是因为原语对变量的操作过程如果被打断，可能会去运行另一个对同一变量的操作过程，从而出现临界段问题。如果能够找到一种解决临界段问题的元方法，就可以实现对共享变量操作的原子性。</p>
+<h3 id="整型信号量"><a href="#整型信号量" class="headerlink" title="整型信号量"></a>整型信号量</h3><p>整型信号量被定义为一个用于表示资源数目的整型量S，wait和signal操作可描述为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wait(S)&#123;</span><br><span class="line">    <span class="keyword">while</span> (S&lt;=<span class="number">0</span>);</span><br><span class="line">    S=S-<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">signal(S)&#123;</span><br><span class="line">    S=S+<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>wait操作中，只要信号量S&lt;=0，就会不断地测试。<br>因此，该机制并未遵循“让权等待” 的准则，而是使进程处于“忙等”的状态。</p>
+<h3 id="记录型信号量"><a href="#记录型信号量" class="headerlink" title="记录型信号量"></a>记录型信号量</h3><p>记录型信号量是不存在“忙等”现象的进程同步机制。除了需要一个用于代表资源数目的整型变量value外，再增加一个进程链表L，用于链接所有等待该资源的进程，记录型信号量是由于釆用了记录型的数据结构得名。</p>
+<p>记录型信号量可描述为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">typedef struct&#123;</span><br><span class="line">    <span class="keyword">int</span> value;</span><br><span class="line">    struct process *L;</span><br><span class="line">&#125; semaphore;</span><br></pre></td></tr></table></figure>
+
+<p>相应的wait(S)和signal(S)的操作如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">wait</span> <span class="params">(semaphore S)</span> </span>&#123; <span class="comment">//相当于申请资源</span></span><br><span class="line">    S.value--;</span><br><span class="line">    <span class="keyword">if</span>(S.value&lt;<span class="number">0</span>) &#123;</span><br><span class="line">        add <span class="keyword">this</span> process to S.L;</span><br><span class="line">        block(S.L);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>wait操作，S.value–，表示进程请求一个该类资源，当S.value&lt;0 时，表示该类资源已分配完毕，因此进程应调用block原语，进行自我阻塞，放弃处理机，并插入到该类资源的等待队列S.L中，可见该机制遵循了“让权等待”的准则。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal</span> <span class="params">(semaphore S)</span> </span>&#123;  <span class="comment">//相当于释放资源</span></span><br><span class="line">    S.value++;</span><br><span class="line">    <span class="keyword">if</span>(S.value&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        remove a process P from S.L;</span><br><span class="line">        wakeup(P);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>signal操作，表示进程释放一个资源，使系统中可供分配的该类资源数增1，故S.value++。若加1后仍是S.value&lt;=0，则表示在S.L中仍有等待该资源的进程被阻塞，故还应调用wakeup 原语，将S.L中的第一个等待进程唤醒。</p>
+<h3 id="利用信号量实现进程同步"><a href="#利用信号量实现进程同步" class="headerlink" title="利用信号量实现进程同步"></a>利用信号量实现进程同步</h3><p>信号量机构能用于解决进程间各种同步问题。</p>
+<p>设S为实现进程P1、P2同步的公共信号量，初值为0。<br>进程P2中的语句y要使用进程P1中语句x的运行结果，所以只有当语句x执行完成之后语句y才可以执行。</p>
+<p>其实现进程同步的算法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">semaphore S = <span class="number">0</span>;  <span class="comment">//初始化信号量</span></span><br><span class="line">P1() &#123;</span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    x;  <span class="comment">//语句x</span></span><br><span class="line">    V(S);  <span class="comment">//告诉进程P2,语句乂已经完成</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">P2() &#123;</span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    P(S) ;  <span class="comment">//检查语句x是否运行完成</span></span><br><span class="line">    y;  <span class="comment">// 检查无误，运行y语句</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用信号量实现进程互斥"><a href="#利用信号量实现进程互斥" class="headerlink" title="利用信号量实现进程互斥"></a>利用信号量实现进程互斥</h3><p>信号量机构也能很方便地解决进程互斥问题。</p>
+<p>设S为实现进程Pl、P2互斥的信号量，由于每次只允许一个进程进入临界区，所以S的初值应为1（即可用资源数为1)。<br>只需把临界区置于P(S)和V(S)之间，即可实现两进程对临界资源的互斥访问。</p>
+<p>其算法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">semaphore S = <span class="number">1</span>;  <span class="comment">//初化信号量</span></span><br><span class="line">P1 ( ) &#123;</span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    P(S);  <span class="comment">// 准备开始访问临界资源，加锁</span></span><br><span class="line">    <span class="comment">// 进程P1的临界区</span></span><br><span class="line">    V(S);  <span class="comment">// 访问结束，解锁</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">P2() &#123;</span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    P(S); <span class="comment">//准备开始访问临界资源，加锁</span></span><br><span class="line">    <span class="comment">// 进程P2的临界区；</span></span><br><span class="line">    V(S);  <span class="comment">// 访问结束，解锁</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>互斥的实现是不同进程对同一信号量进行P、V操作，一个进程在成功地对信号量执行了P操作后进入临界区，并在退出临界区后，由该进程本身对该信号量执行V操作，表示当前没有进程进入临界区，可以让其他进程进入。</p>
+<h3 id="利用信号量实现前驱关系"><a href="#利用信号量实现前驱关系" class="headerlink" title="利用信号量实现前驱关系"></a>利用信号量实现前驱关系</h3><p>信号量也可以用来描述程序之间或者语句之间的前驱关系。</p>
+<p>下图给出了一个前驱图，其中S1, S2, S3, …, S6是最简单的程序段（只有一条语句）。为使各程序段能正确执行，应设置若干个初始值为“0”的信号量。例如，为保证S1-&gt;S2、 S1-&gt;S3的前驱关系，应分别设置信号量a1、a2。同样，为了保证 S2-&gt;S4、S2-&gt;S5、S3-&gt;S6、S4-&gt;S6、S5-&gt;S6，应设置信号量bl、b2、c、d、e。 </p>
+<p><img src="/uploads/multithreads-basic-knowledge/4.png" alt="image"></p>
+<p>实现算法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">semaphore  al=a2=bl=b2=c=d=e=<span class="number">0</span>;  <span class="comment">//初始化信号量</span></span><br><span class="line">S1() &#123;</span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    V(al);  V(a2) ;  <span class="comment">//S1已经运行完成</span></span><br><span class="line">&#125;</span><br><span class="line">S2() &#123;</span><br><span class="line">    P(a1);  <span class="comment">//检查S1是否运行完成</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    V(bl); V(b2); <span class="comment">// S2已经运行完成</span></span><br><span class="line">&#125;</span><br><span class="line">S3() &#123;</span><br><span class="line">    P(a2);  <span class="comment">//检查S1是否已经运行完成</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    V(c);  <span class="comment">//S3已经运行完成</span></span><br><span class="line">&#125;</span><br><span class="line">S4() &#123;</span><br><span class="line">    P(b1);  <span class="comment">//检查S2是否已经运行完成</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    V(d);  <span class="comment">//S4已经运行完成</span></span><br><span class="line">&#125;</span><br><span class="line">S5() &#123;</span><br><span class="line">    P(b2);  <span class="comment">//检查S2是否已经运行完成</span></span><br><span class="line">    <span class="comment">// …</span></span><br><span class="line">    V(e);  <span class="comment">// S5已经运行完成</span></span><br><span class="line">&#125;</span><br><span class="line">S6() &#123;</span><br><span class="line">    P(c);  <span class="comment">//检查S3是否已经运行完成</span></span><br><span class="line">    P(d);  <span class="comment">//检查S4是否已经运行完成</span></span><br><span class="line">    P(e);  <span class="comment">//检查S5是否已经运行完成</span></span><br><span class="line">    <span class="comment">// …;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析进程同步和互斥问题的方法步骤：</p>
+<ol>
+<li>关系分析。找出问题中的进程数，并且分析它们之间的同步和互斥关系。同步、互斥、前驱关系直接按照上面例子中的经典范式改写。</li>
+<li>整理思路。找出解决问题的关键点，并且根据做过的题目找出解决的思路。根据进程的操作流程确定P操作、V操作的大致顺序。</li>
+<li>设置信号量。根据上面两步，设置需要的信号量，确定初值，完善整理。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%A6%E4%B9%A0/" rel="tag"># 学习</a>
+              <a href="/tags/%E8%BD%AC%E8%BD%BD/" rel="tag"># 转载</a>
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/08/21/java-concurrency-brief/" rel="prev" title="Java的多线程和并发知识纲要">
+      <i class="fa fa-chevron-left"></i> Java的多线程和并发知识纲要
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/08/23/operation-system-job-schedule/" rel="next" title="操作系统原理之处理机调度">
+      操作系统原理之处理机调度 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86%E4%B9%8B%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">操作系统原理之信号量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BA%92%E6%96%A5%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">实现临界区互斥的基本方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.1.</span> <span class="nav-text">软件实现方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E4%B8%80%EF%BC%9A%E5%8D%95%E6%A0%87%E5%BF%97%E6%B3%95"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">算法一：单标志法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E4%BA%8C%EF%BC%9A%E5%8F%8C%E6%A0%87%E5%BF%97%E6%B3%95%E5%85%88%E6%A3%80%E6%9F%A5"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">算法二：双标志法先检查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E4%B8%89%EF%BC%9A%E5%8F%8C%E6%A0%87%E5%BF%97%E6%B3%95%E5%90%8E%E6%A3%80%E6%9F%A5"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">算法三：双标志法后检查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%9B%9B%EF%BC%9APeterson%E2%80%99s-Algorithm"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">算法四：Peterson’s Algorithm</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.2.</span> <span class="nav-text">硬件实现方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E5%B1%8F%E8%94%BD%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">中断屏蔽方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%8C%87%E4%BB%A4%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">硬件指令方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-number">1.2.</span> <span class="nav-text">信号量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-number">1.2.1.</span> <span class="nav-text">整型信号量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E5%9E%8B%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">记录型信号量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">1.2.3.</span> <span class="nav-text">利用信号量实现进程同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E8%BF%9B%E7%A8%8B%E4%BA%92%E6%96%A5"><span class="nav-number">1.2.4.</span> <span class="nav-text">利用信号量实现进程互斥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%AE%9E%E7%8E%B0%E5%89%8D%E9%A9%B1%E5%85%B3%E7%B3%BB"><span class="nav-number">1.2.5.</span> <span class="nav-text">利用信号量实现前驱关系</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chain Qian"
+      src="/uploads/custom-avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chain Qian</p>
+  <div class="site-description" itemprop="description">// todo sth</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chaingit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chaingit" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:chainz@foxmail.com" title="E-Mail → mailto:chainz@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">苏ICP备16052713号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chain Qian</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

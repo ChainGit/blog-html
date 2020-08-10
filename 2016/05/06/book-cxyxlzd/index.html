@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.leechain.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="程序员修炼之道——专业程序员必知的33个技巧和《高效程序员的45个习惯——敏捷开发修炼之道》一书一样，这本书也是不错的。 每章小结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="程序员修炼之道——专业程序员必知的33个技巧">
+<meta property="og:url" content="http://www.leechain.top/2016/05/06/book-cxyxlzd/index.html">
+<meta property="og:site_name" content="Qwerty Everyday.">
+<meta property="og:description" content="程序员修炼之道——专业程序员必知的33个技巧和《高效程序员的45个习惯——敏捷开发修炼之道》一书一样，这本书也是不错的。 每章小结">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-05-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2017-07-20T05:44:41.000Z">
+<meta property="article:author" content="Chain Qian">
+<meta property="article:tag" content="阅读">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.leechain.top/2016/05/06/book-cxyxlzd/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>程序员修炼之道——专业程序员必知的33个技巧 | Qwerty Everyday.</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Qwerty Everyday.</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">/* hello world */</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.leechain.top/2016/05/06/book-cxyxlzd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/custom-avatar.jpg">
+      <meta itemprop="name" content="Chain Qian">
+      <meta itemprop="description" content="// todo sth">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Qwerty Everyday.">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          程序员修炼之道——专业程序员必知的33个技巧
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-05-06 00:00:00" itemprop="dateCreated datePublished" datetime="2016-05-06T00:00:00+08:00">2016-05-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="程序员修炼之道——专业程序员必知的33个技巧"><a href="#程序员修炼之道——专业程序员必知的33个技巧" class="headerlink" title="程序员修炼之道——专业程序员必知的33个技巧"></a>程序员修炼之道——专业程序员必知的33个技巧</h2><p>和《高效程序员的45个习惯——敏捷开发修炼之道》一书一样，这本书也是不错的。</p>
+<h2 id="每章小结"><a href="#每章小结" class="headerlink" title="每章小结"></a>每章小结</h2><h3 id="第一章-编程生产"><a href="#第一章-编程生产" class="headerlink" title="第一章 编程生产"></a>第一章 编程生产</h3><p>娱乐消遣时一般可以不考虑边界，错误，警告灯。<br>生产环境不能马虎大意。<br>比起事后测试，当时测试也是必要的。<br>需要建立正确的思维方式，及时验证代码的正确性，及时测试。<br>巨大的项目不可怕，慢慢分解，逐步完成。<br>确定一个合适优雅的编程风格，有时是公司的编码规范。<br>敲代码时要保证质量。<br>代码评审，单元测试，接受测试，负载测试，定向探索测试，机构测试，环境测试，兼容性测试，耐久性测试，Beta测试，运行测试。<br>将要做的事分开写是个好习惯，但掌握平台。<br>测试时要做有意义的测试。<br>做和想同步进行。</p>
+<h3 id="第二章-整理工具"><a href="#第二章-整理工具" class="headerlink" title="第二章 整理工具"></a>第二章 整理工具</h3><p>没有那门语言的学习有捷径。<br>学习的过程是如走楼梯，一层更比一层高。<br>自动化部署工具，自动话能减少错误，节约时间。<br>版本控制系统可以跟踪内容，发布新版本，回滚老版本。<br>开源项目注意版权。<br>GNU公共许可证。</p>
+<h3 id="第三章-自我管理"><a href="#第三章-自我管理" class="headerlink" title="第三章 自我管理"></a>第三章 自我管理</h3><p>找个好师傅，具有你欣赏的品质，支持你，技术技能，了解形势，高标准。<br>在公司自我形象很重要，不要太随意。<br>拥有自己风格，不是哗众取宠。<br>积极的去做事。<br>正确应对压力，严肃对待。<br>善待自己，劳逸结合，提高效率。<br>选择一个好的键盘，显示器，鼠标，桌子和椅子。</p>
+<h3 id="第四章-团队协作"><a href="#第四章-团队协作" class="headerlink" title="第四章 团队协作"></a>第四章 团队协作</h3><p>熟悉团队的性格，性情：内倾/外倾，感应：感觉/直觉，判断：思考/情感，生活方式：知觉/判断。<br>男性大部分只有逻辑没有情感：ISTJ（introverted,sensing,thinking,judgment）。<br>女性大部分是ISFJ（Feeling）。<br>建立自己的人脉，了解团队之间的丛属关系，各成员之间感情关系。<br>合作上分而治之，结对编程（一起编程），当专注于自己的状态时不要去打扰他，当心情不佳时要适时去喝咖啡。<br>开会简短高效比较好。当然也可以开开类似聚会的会议。</p>
+<h3 id="第五章-走进公司"><a href="#第五章-走进公司" class="headerlink" title="第五章 走进公司"></a>第五章 走进公司</h3><p>程序员，技术领导，架构师，经理，测试员，构建部署的人员。<br>公司结构，行政助理，项目支持，营销人员，产品管理，销售经理，后勤人员，人力资源，财务和会计，首席执行官（CEO），首席技术官（CTO），首席信息官（CIO），首席运营官（COO），首席财务官（CFO），首席法律顾问（CLO），董事会。。。</p>
+<h3 id="第六章-留意自己的企业"><a href="#第六章-留意自己的企业" class="headerlink" title="第六章 留意自己的企业"></a>第六章 留意自己的企业</h3><p>了解自己的项目。瀑布项目管理，敏捷项目管理。<br>注意产品生产周期，概念，原型，开发，发布，维护。<br>有时站在公司角度思考，眼光会不一样。<br>不要总是抱着图表不放，真实的度量很重要。<br>《人月神话》</p>
+<h3 id="第七章-改善"><a href="#第七章-改善" class="headerlink" title="第七章 改善"></a>第七章 改善</h3><p>端正态度，创新创意。<br>学无止境，与时俱进。<br>自我定位，眼光远大。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%98%85%E8%AF%BB/" rel="tag"># 阅读</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/04/17/book-mjkfxlzd/" rel="prev" title="高效程序员的45个习惯——敏捷开发修炼之道">
+      <i class="fa fa-chevron-left"></i> 高效程序员的45个习惯——敏捷开发修炼之道
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/06/04/book-sjjgysfjdwtjx/" rel="next" title="数据结构与算法经典问题解析">
+      数据结构与算法经典问题解析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%91%98%E4%BF%AE%E7%82%BC%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%B8%93%E4%B8%9A%E7%A8%8B%E5%BA%8F%E5%91%98%E5%BF%85%E7%9F%A5%E7%9A%8433%E4%B8%AA%E6%8A%80%E5%B7%A7"><span class="nav-number">1.</span> <span class="nav-text">程序员修炼之道——专业程序员必知的33个技巧</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%8F%E7%AB%A0%E5%B0%8F%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">每章小结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%AB%A0-%E7%BC%96%E7%A8%8B%E7%94%9F%E4%BA%A7"><span class="nav-number">2.1.</span> <span class="nav-text">第一章 编程生产</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%95%B4%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">2.2.</span> <span class="nav-text">第二章 整理工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%AB%A0-%E8%87%AA%E6%88%91%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">第三章 自我管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C"><span class="nav-number">2.4.</span> <span class="nav-text">第四章 团队协作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E7%AB%A0-%E8%B5%B0%E8%BF%9B%E5%85%AC%E5%8F%B8"><span class="nav-number">2.5.</span> <span class="nav-text">第五章 走进公司</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%85%AD%E7%AB%A0-%E7%95%99%E6%84%8F%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BC%81%E4%B8%9A"><span class="nav-number">2.6.</span> <span class="nav-text">第六章 留意自己的企业</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%83%E7%AB%A0-%E6%94%B9%E5%96%84"><span class="nav-number">2.7.</span> <span class="nav-text">第七章 改善</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Chain Qian"
+      src="/uploads/custom-avatar.jpg">
+  <p class="site-author-name" itemprop="name">Chain Qian</p>
+  <div class="site-description" itemprop="description">// todo sth</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">75</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/chaingit" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;chaingit" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:chainz@foxmail.com" title="E-Mail → mailto:chainz@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">苏ICP备16052713号-1 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chain Qian</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
